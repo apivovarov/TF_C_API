@@ -1,6 +1,7 @@
 # Intro
 
 Run Tensorflow style transform model using C API.
+Tested on AWS EC2 p3.2xlarge box (sm_70, Tesla V100-SXM2-16GB)
 
 # Preparation
 Download style transform model frozen model.
