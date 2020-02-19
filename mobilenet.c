@@ -11,7 +11,6 @@ void free_buffer(void* data, size_t length) {
 int load_frozen_model(const char* pb_file, TF_Graph* graph, TF_Status* status);
 
 int main() {
-  int errC = 0;
   const char* pb_file = "mobilenet_v1_1.0_224_frozen.pb";
   TF_Status* status = TF_NewStatus();
   TF_Graph* graph = TF_NewGraph();
@@ -40,7 +39,7 @@ int main() {
     input_data[i] = 0.1;
   }
   TF_Tensor* input_tensors[1] = {input_tensor}; 
-  TF_Tensor* output_tensors[1] = {}; 
+  TF_Tensor* output_tensors[1]; 
   
   const int N = 20000;
   for (int i = 0; i < N; i++) {
@@ -56,7 +55,7 @@ int main() {
     TF_Tensor* ot0 = output_tensors[0];
     float* od0 = (float*) TF_TensorData(ot0);
     // Output Tensor is new object each time, TensorData is new array each time
-    printf("Output Tensor: %p, output Tensor Data: %p\n", ot0, od0);
+    printf("Output Tensor: %p, output Tensor Data: %p\n", (void*)ot0, (void*)od0);
     // !!! uncomment the line below to stop GPU memory leak
     // Output Tensor will be new object each time, but TensorData will be the same (will be reused) 
     // TF_DeleteTensor(ot0);

@@ -10,7 +10,7 @@ int SetConfig(TF_SessionOptions* opts, tensorflow::ConfigProto& config, TF_Statu
   }
   // Dump bytes to console
   const char* o = output.c_str();
-  for (int i = 0; i < output.size(); i++) {
+  for (size_t i = 0; i < output.size(); i++) {
     if (i > 0) {printf(",");}
     printf("0x%x", o[i] & 0xff);
   }

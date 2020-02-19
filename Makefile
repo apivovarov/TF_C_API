@@ -1,5 +1,5 @@
-CPPFLAGS=-O3 -march=native -std=c++11
-CFLAGS=-O3 -march=native -std=c11
+CPPFLAGS=-O3 -march=native -std=c++11 -Wall -pedantic
+CFLAGS=-O3 -march=native -std=c11 -Wall -pedantic
 LD_FLAGS=
 
 

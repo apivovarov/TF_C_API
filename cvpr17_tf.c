@@ -202,6 +202,6 @@ int64_t desc_tensor(TF_Tensor* t) {
   }
   int_array_to_str(shape, ndim, shape_str);
   size_t nbytes = TF_TensorByteSize(t);
-  printf("NumDims: %d, Shape: %s, Size: %'ld, Bytes: %'ld\n", ndim, shape_str, size, nbytes);
+  printf("NumDims: %d, Shape: %s, Size: %ld, Bytes: %ld\n", ndim, shape_str, size, nbytes);
   return size;
 }
