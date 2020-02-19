@@ -25,10 +25,10 @@ run_config : config
 	LD_LIBRARY_PATH=libtensorflow/lib: ./config
 
 config : config.o
-	g++ $(CFLAGS) -o config config.o -Llibtensorflow/lib -ltensorflow -ltensorflow_framework $(LD_FLAGS)
+	g++ $(CPPFLAGS) -o config config.o -Llibtensorflow/lib -ltensorflow -ltensorflow_framework $(LD_FLAGS)
 
 config.o : config.cc libtensorflow/include
-	g++ -o config.o -c -Itensorflow/bazel-tensorflow/external/com_google_protobuf/src -Itensorflow/bazel-bin -Ilibtensorflow/include config.cc
+	g++ $(CPPFLAGS) -o config.o -c -Itensorflow/bazel-tensorflow/external/com_google_protobuf/src -Itensorflow/bazel-bin -Ilibtensorflow/include config.cc
 
 clean :
 	rm -rf *.o cvpr17_tf mobilenet config

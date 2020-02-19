@@ -2,4 +2,6 @@
 *.o
 tensorflow
 cvpr17_tf
-
+config
+libtensorflow
+mobilenet
