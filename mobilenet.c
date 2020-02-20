@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <tensorflow/c/c_api.h>
+#include <sys/time.h>
+
+double ms();
 
 TF_Buffer* read_file(const char* file);
 
@@ -11,11 +14,15 @@ void free_buffer(void* data, size_t length) {
 int load_frozen_model(const char* pb_file, TF_Graph* graph, TF_Status* status);
 
 int main() {
-  const char* pb_file = "mobilenet_v1_1.0_224_frozen.pb";
+  //const char* pb_file = "mobilenet_v1_1.0_224_frozen.pb";
+  const char* pb_file = "test.pb";
   TF_Status* status = TF_NewStatus();
   TF_Graph* graph = TF_NewGraph();
   load_frozen_model(pb_file, graph, status);
   TF_SessionOptions* opts = TF_NewSessionOptions();
+  // GPUOptions: per_process_gpu_memory_fraction=0.33, allow_growth=True
+  uint8_t config[] = {0x32,0xb,0x9,0x1f,0x85,0xeb,0x51,0xb8,0x1e,0xd5,0x3f,0x20,0x1};
+  TF_SetConfig(opts, config, 13, status);
   TF_Session* sess = TF_NewSession(graph, opts, status);
   TF_DeleteSessionOptions(opts);
   TF_Output input_0;
@@ -23,12 +30,13 @@ int main() {
   input_0.index = 0;
   TF_Output inputs[1] = {input_0};
   TF_Output output_0;
-  output_0.oper = TF_GraphOperationByName(graph, "MobilenetV1/Predictions/Reshape_1");
+  //output_0.oper = TF_GraphOperationByName(graph, "MobilenetV1/Predictions/Reshape_1");
+  output_0.oper = TF_GraphOperationByName(graph, "output");
   output_0.index = 0;
   TF_Output outputs[1] = {output_0};
 
-  const int H = 224;
-  const int W = 224;
+  const int H = 480;
+  const int W = 640;
   const int len = H * W * 3;
   const int num_bytes = len * sizeof(float);
   int64_t dims[] = {1, H, W, 3};
@@ -39,11 +47,15 @@ int main() {
     input_data[i] = 0.1;
   }
   TF_Tensor* input_tensors[1] = {input_tensor}; 
-  TF_Tensor* output_tensors[1]; 
+  //TF_Tensor* output_tensors[1];
+  TF_Tensor* output_tensors[1] = {TF_AllocateTensor(TF_FLOAT, dims, 4, num_bytes)};
   
-  const int N = 20000;
+  const int N = 200000;
+  double tt = 0;
+  double maxT = 0;
   for (int i = 0; i < N; i++) {
     printf("%d TF_SessionRun...\n", i);
+    double t1 = ms();
     TF_SessionRun(sess,
                   NULL, // Run options.
                   inputs, input_tensors, 1, // Input tensors, input tensor values, number of inputs.
@@ -56,6 +68,12 @@ int main() {
     float* od0 = (float*) TF_TensorData(ot0);
     // Output Tensor is new object each time, TensorData is new array each time
     printf("Output Tensor: %p, output Tensor Data: %p\n", (void*)ot0, (void*)od0);
+    double t2 = ms();
+    if (i >= 0) {
+      tt = t2 - t1;
+      if (tt > maxT) { maxT = tt;}
+    }
+    printf("TF_SessionRun done, Time: %2.3f ms, maxT: %2.3f ms\n", tt, maxT);
     // !!! uncomment the line below to stop GPU memory leak
     // Output Tensor will be new object each time, but TensorData will be the same (will be reused) 
     // TF_DeleteTensor(ot0);
@@ -107,5 +125,11 @@ TF_Buffer* read_file(const char* file) {
   buf->length = fsize;                                                                    
   buf->data_deallocator = free_buffer;                                                    
   return buf;
+}
+
+double ms() {
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return (tv.tv_sec*1000.0)+(tv.tv_usec/1000.0);
 }
 

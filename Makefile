@@ -13,7 +13,7 @@ cvpr17_tf.o : cvpr17_tf.c libtensorflow/include
 	gcc $(CFLAGS) -o cvpr17_tf.o -c -Ilibtensorflow/include cvpr17_tf.c
 
 run_mobilenet : mobilenet
-	LD_LIBRARY_PATH=libtensorflow/lib ./mobilenet
+	LD_LIBRARY_PATH=libtensorflow/lib:/usr/local/cuda-10.0/lib64 ./mobilenet
 
 mobilenet : mobilenet.o
 	gcc $(CFLAGS) -o mobilenet mobilenet.o -Llibtensorflow/lib -ltensorflow -ltensorflow_framework $(LD_FLAGS)
